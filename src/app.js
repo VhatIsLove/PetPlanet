@@ -3,6 +3,7 @@ const API_URL = "https://melon-truth-protocol.glitch.me"; // адрес серв
 const button = document.querySelectorAll(".shop__category-btn"); // получаем кнопку
 const productList = document.querySelector(".shop__list"); // получаем список
 const basketBtn = document.querySelector(".shop__btn-card"); // получаем кнопку карзины
+const basketCnt = basketBtn.querySelector(".shop__cnt-card"); // цифру а иконке корзины
 const modal = document.querySelector(".modal-overlay"); // получаем модальное окно
 const cartList = document.querySelector(".modal__cart-list"); // получаем список МО
 
@@ -89,12 +90,27 @@ button.forEach((btn) => {
 	}
 });
 
+//рендер товара в модальном окне
+// сразу очищаем элементы списка для безопасности
+// получаем значение localStorage и перебираем его через forEach, на каждой итерации создаем 'li' элемент и записываем в него полученое значение при переборе
+const renderBasketItem = () => {
+	cartList.textContent = "";
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+
+	cartItems.forEach((item) => {
+		const listItem = document.createElement("li");
+		listItem.textContent = item;
+		cartList.append(listItem);
+	});
+};
+
 //вешаем событие на кнопку корзины
 basketBtn.addEventListener("click", () => {
 	modal.style.display = "flex"; // у МО меняем свойство на с none на флекс, благодаря этому оно появляется
+	renderBasketItem();
 });
 
-//Другой вариант получения свойства tdrget, которое  позволяет нам выявить элемент по которому кликнули
+//Другой вариант получения свойства target, которое  позволяет нам выявить элемент по которому кликнули
 modal.addEventListener("click", ({ target }) => {
 	// если target строго равен МО тогда мы закрываем МО или клик произошел на элемент с классом
 	if (target === modal || target.closest(".modal-overlay__close-btn")) {
@@ -102,4 +118,34 @@ modal.addEventListener("click", ({ target }) => {
 	}
 });
 
-// 23min
+// Изменяем число в иконке корзины в зависимости от товаров находящихся в localStorage
+//
+const updateBasketCount = () => {
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	basketCnt.textContent = cartItems.length;
+};
+
+updateBasketCount();
+
+// localStorage - хронилище в браузере, обращаясь к нему можно вытянуть нужную информацию
+// localStorage.getItem("cartItems"); забираем из хронилища значение ключа "cartItems". Получаем либо значение либо null
+// localStorage.setItem("cartItems", JSON.stringify(['привет', 'hello'])); записываем в хронилище значение ключа "cartItems" слово 'привет' и 'hello', с помощью преобразования в JSON для удобства работы
+// с помощью JSON.parse преобразуем из JSON
+const addToBasket = (productName) => {
+	// добавление в корзину
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	cartItems.push(productName); // записываем в полученный массив данные
+	localStorage.setItem("cartItems", JSON.stringify(cartItems));
+
+	updateBasketCount();
+};
+
+// кликаем внутри списка товаров, получаем target, проверяем пирсутствует ли у кнопки нужный класс и если присутствует то мы создаем переменную с taregt значением у элемента с классом '.shop__product', затем мы создаем productName и в нем получаем значение textContent нужного класса. В общем мы записываем товар в localStorage
+productList.addEventListener("click", ({ target }) => {
+	if (target.closest(".product__add-card")) {
+		const productCard = target.closest(".shop__product");
+		const productName =
+			productCard.querySelector(".product__title").textContent;
+		addToBasket(productName);
+	}
+});
