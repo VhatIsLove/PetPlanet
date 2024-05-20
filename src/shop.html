@@ -212,9 +212,69 @@
 			<!-- открываем окно -->
 			<div class="modal" id="modal">
 				<div class="modal__content">
-					<h2>Корзина</h2>
-					<ul class="modal__cart-list"></ul>
+					<h2 class="modal__title">Корзина</h2>
 					<!-- вставляем товары -->
+					<ul class="modal__cart-list">
+						<li class="modal__cart-item">
+							<img
+								src="img/product-card/card-1.jpg"
+								alt="Собака в лежанке"
+								class="modal__cart-item-img"
+							/>
+
+							<h3 class="modal__item-title">Название</h3>
+
+							<div class="modal__item-count">
+								<button class="modal__count-btn modal__minus">-</button>
+								<span class="modal__count">0</span>
+								<button class="modal__count-btn modal__plus">+</button>
+							</div>
+
+							<p class="modal__item-price">400&nbsp;₽</p>
+						</li>
+					</ul>
+
+					<form action="" class="modal__form">
+						<fieldset class="modal__fieldset">
+							<legend class="modal__legend">Самовывоз из магазина:</legend>
+
+							<label class="modal__radio radio">
+								ул. Адмиральская 44
+								<input
+									class="radio__input"
+									type="radio"
+									name="shop"
+									value="1"
+									checked
+								/>
+							</label>
+
+							<label class="modal__radio radio"
+								>ул. Владимирская 56а
+								<input
+									class="radio__input"
+									type="radio"
+									name="shop"
+									value="2"
+								/>
+							</label>
+
+							<label class="modal__radio radio"
+								>ул. Центрового 124/2б
+								<input
+									class="radio__input"
+									type="radio"
+									name="shop"
+									value="3"
+								/>
+							</label>
+						</fieldset>
+
+						<div class="modal__footer">
+							<button class="madal__footer-btn">Заказать</button>
+							<p class="modal__footer-price">0&nbsp;₽</p>
+						</div>
+					</form>
 				</div>
 			</div>
 			<button class="modal-overlay__close-btn">&times;</button>
