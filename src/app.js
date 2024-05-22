@@ -12,7 +12,7 @@ const modalCloseBtn = document.querySelector(".modal-overlay__close-btn"); // п
 // API Block
 // const createProductCard = (product) =>  такой записью мы получаем обект данных и в нужных местах обрвщалмсь бы к его ключам вытаскивая значения
 // а нижней записью мы сразу записываем ключи в скобки (обычные и фигурные)и где нужно получаем их значения
-const createProductCard = ({ photoUrl, name, price }) => {
+const createProductCard = ({ id, photoUrl, name, price }) => {
 	// сама карточка
 	const productCard = document.createElement("li"); // создаем элемент списка
 	productCard.classList.add("shop__item"); // добавляем класс
@@ -30,7 +30,7 @@ const createProductCard = ({ photoUrl, name, price }) => {
 
 								<p class="product__price">${price}&nbsp;₽</p>
 
-								<button class="product__add-card">Заказать</button>
+								<button class="product__add-card" data-id='${id}'>Заказать</button>
 							</article>
 	`; // создаем в этом 'li' html верстку элемента; фото получаем обращаясь через URL адрес сервера
 	return productCard;
@@ -131,21 +131,27 @@ updateBasketCount();
 // localStorage.getItem("cartItems"); забираем из хронилища значение ключа "cartItems". Получаем либо значение либо null
 // localStorage.setItem("cartItems", JSON.stringify(['привет', 'hello'])); записываем в хронилище значение ключа "cartItems" слово 'привет' и 'hello', с помощью преобразования в JSON для удобства работы
 // с помощью JSON.parse преобразуем из JSON
-const addToBasket = (productName) => {
+const addToBasket = (productId) => {
 	// добавление в корзину
 	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	const existingItem = cartItems.find((item) => item.id === productId); // проверяем есть ли такой товар в корзине
+
+	if (existingItem) {
+		existingItem.count += 1;
+	} else {
+		cartItems.push({ id: productId, count: 1 });
+	}
 	cartItems.push(productName); // записываем в полученный массив данные
 	localStorage.setItem("cartItems", JSON.stringify(cartItems));
 
 	updateBasketCount();
 };
 
-// кликаем внутри списка товаров, получаем target, проверяем пирсутствует ли у кнопки нужный класс и если присутствует то мы создаем переменную с taregt значением у элемента с классом '.shop__product', затем мы создаем productName и в нем получаем значение textContent нужного класса. В общем мы записываем товар в localStorage
+// кликаем внутри списка товаров, получаем target, проверяем пирсутствует ли у кнопки нужный класс и если присутствует  то мы создаем переменную с target.dataset.id значением которое дает нам id элемента, затем / мы создаем productName и в нем получаем значение textContent нужного класса. В общем мы записываем товар в localStorage по id
 productList.addEventListener("click", ({ target }) => {
 	if (target.closest(".product__add-card")) {
-		const productCard = target.closest(".shop__product");
-		const productName =
-			productCard.querySelector(".product__title").textContent;
-		addToBasket(productName);
+		const productId = parseInt(target.dataset.id);
+
+		addToBasket(productId);
 	}
 });
