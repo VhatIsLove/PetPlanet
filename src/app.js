@@ -8,6 +8,8 @@ const modal = document.querySelector(".modal-overlay"); // получаем мо
 const cartList = document.querySelector(".modal__cart-list"); // получаем список МО
 
 const modalCloseBtn = document.querySelector(".modal-overlay__close-btn"); // получаем кнопку закрыть МО
+const modalItemPrice = document.querySelector(".modal__item-price"); // прайс
+const modalForm = document.querySelector(".modal__form"); // форма в МО
 
 // API Block
 // const createProductCard = (product) =>  такой записью мы получаем обект данных и в нужных местах обрвщалмсь бы к его ключам вытаскивая значения
@@ -65,6 +67,24 @@ const fetchProductCategory = async (category) => {
 		console.error(`Ошибка запроса товара: ${error}`);
 	}
 };
+
+//
+const fetchBasketItems = async (ids) => {
+	try {
+		const response = await fetch(
+			`${API_URL}/api/products/list/${ids.join(",")}`
+		);
+
+		if (!response.ok) {
+			throw new Error(response.status);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error(`Ошибка запроса товаров: ${error}`);
+		return [];
+	}
+};
+
 // event это объект который мы можем полчать, вызывавть методы, деструктурировать
 // получаем event для того что бы у него получить target и работать с ним
 //свойство tdrget позволяет нам выявить элемент по которому кликнули
@@ -93,20 +113,60 @@ button.forEach((btn) => {
 //рендер товара в модальном окне
 // сразу очищаем элементы списка для безопасности
 // получаем значение localStorage и перебираем его через forEach, на каждой итерации создаем 'li' элемент и записываем в него полученое значение при переборе
-const renderBasketItem = () => {
+const renderBasketItem = async () => {
 	cartList.textContent = "";
 	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	const products = JSON.parse(
+		localStorage.getItem("cartProductDetailes") || "[]"
+	);
 
-	cartItems.forEach((item) => {
+	products.forEach(({ id, photoUrl, name, price }) => {
+		const cartItem = cartItems.find((item) => item.id === id);
+		if (!cartItem) {
+			return;
+		}
+
 		const listItem = document.createElement("li");
-		listItem.textContent = item;
+		listItem.classList.add("modal__cart-item");
+		listItem.innerHTML = `
+							<img
+							class="modal__cart-item-img"
+								src="${API_URL}${photoUrl}"
+								alt="${name}"
+							/>
+
+							<h3 class="modal__item-title">${name}</h3>
+
+							<div class="modal__item-count">
+								<button class="modal__count-btn modal__minus" data-id=${id}>-</button>
+								<span class="modal__count">${cartItem.count}</span>
+								<button class="modal__count-btn modal__plus" data-id=${id}>+</button>
+							</div>
+
+							<p class="modal__item-price">${price * cartItem.count}&nbsp;₽</p>
+		`;
 		cartList.append(listItem);
 	});
+
+	const totalPrice = calcTotalPrice(cartItems, products);
 };
 
 //вешаем событие на кнопку корзины
-basketBtn.addEventListener("click", () => {
+basketBtn.addEventListener("click", async () => {
 	modal.style.display = "flex"; // у МО меняем свойство на с none на флекс, благодаря этому оно появляется
+
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	const ids = cartItems.map((item) => item.id);
+
+	if (!ids.length) {
+		const listItem = document.createElement("li");
+		listItem.textContent = "В корзине пусто";
+		cartList.append(listItem);
+		return;
+	}
+
+	const products = await fetchBasketItems(ids);
+	localStorage.setItem("cartProductDetailes", JSON.stringify(products));
 	renderBasketItem();
 });
 
@@ -141,7 +201,7 @@ const addToBasket = (productId) => {
 	} else {
 		cartItems.push({ id: productId, count: 1 });
 	}
-	cartItems.push(productName); // записываем в полученный массив данные
+
 	localStorage.setItem("cartItems", JSON.stringify(cartItems));
 
 	updateBasketCount();
@@ -150,7 +210,7 @@ const addToBasket = (productId) => {
 // кликаем внутри списка товаров, получаем target, проверяем пирсутствует ли у кнопки нужный класс и если присутствует  то мы создаем переменную с target.dataset.id значением которое дает нам id элемента, затем / мы создаем productName и в нем получаем значение textContent нужного класса. В общем мы записываем товар в localStorage по id
 productList.addEventListener("click", ({ target }) => {
 	if (target.closest(".product__add-card")) {
-		const productId = parseInt(target.dataset.id);
+		const productId = target.dataset.id;
 
 		addToBasket(productId);
 	}
