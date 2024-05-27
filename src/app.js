@@ -110,6 +110,12 @@ button.forEach((btn) => {
 	}
 });
 
+
+//подсчет суммы заказа в иконке 'корзины'
+const calcTotalPrice = (cartItems, products) => cartItems.reduce((acc, item) => {
+	const product = products.find((prod) => prod.id === item.id); 
+	return acc + product.price * item.count
+}, 0);
 //рендер товара в модальном окне
 // сразу очищаем элементы списка для безопасности
 // получаем значение localStorage и перебираем его через forEach, на каждой итерации создаем 'li' элемент и записываем в него полученое значение при переборе
@@ -149,6 +155,7 @@ const renderBasketItem = async () => {
 	});
 
 	const totalPrice = calcTotalPrice(cartItems, products);
+	modalItemPrice.innerHTML = `${totalPrice}&nbsp;₽`;
 };
 
 //вешаем событие на кнопку корзины
@@ -159,6 +166,7 @@ basketBtn.addEventListener("click", async () => {
 	const ids = cartItems.map((item) => item.id);
 
 	if (!ids.length) {
+		cartList.textContent = "";
 		const listItem = document.createElement("li");
 		listItem.textContent = "В корзине пусто";
 		cartList.append(listItem);
