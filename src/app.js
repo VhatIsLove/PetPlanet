@@ -8,7 +8,7 @@ const modal = document.querySelector(".modal-overlay"); // получаем мо
 const cartList = document.querySelector(".modal__cart-list"); // получаем список МО
 
 const modalCloseBtn = document.querySelector(".modal-overlay__close-btn"); // получаем кнопку закрыть МО
-const modalItemPrice = document.querySelector(".modal__item-price"); // прайс
+const modalItemPrice = document.querySelector(".modal__footer-price"); // прайс
 const modalForm = document.querySelector(".modal__form"); // форма в МО
 
 // API Block
@@ -223,3 +223,32 @@ productList.addEventListener("click", ({ target }) => {
 		addToBasket(productId);
 	}
 });
+
+const updateBasketItems = (prodId, num) => {
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	const itemIndex = cartItems.findIndex(item => item.id === prodId)
+
+	if(itemIndex !== -1){
+		cartItems[itemIndex].count += num
+	}
+
+	if(cartItems[itemIndex].count <= 0){
+		cartItems.splice(itemIndex, 1)
+	}
+	localStorage.setItem('cartItems', JSON.stringify(cartItems))
+
+	updateBasketCount()
+	renderBasketItem()
+}
+
+cartList.addEventListener('click', ({target}) => {
+	if(target.classList.contains('modal__plus')){
+		const prodId = target.dataset.id
+		updateBasketItems(prodId, 1)
+	}
+
+	if(target.classList.contains('modal__minus')){
+		const prodId = target.dataset.id
+		updateBasketItems(prodId, -1)
+	}
+})
