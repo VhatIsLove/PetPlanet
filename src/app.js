@@ -1,15 +1,33 @@
 const API_URL = "https://melon-truth-protocol.glitch.me"; // адрес сервера
 
-const button = document.querySelectorAll(".shop__category-btn"); // получаем кнопку
-const productList = document.querySelector(".shop__list"); // получаем список
-const basketBtn = document.querySelector(".shop__btn-card"); // получаем кнопку карзины
-const basketCnt = basketBtn.querySelector(".shop__cnt-card"); // цифру а иконке корзины
-const modal = document.querySelector(".modal-overlay"); // получаем модальное окно
-const cartList = document.querySelector(".modal__cart-list"); // получаем список МО
+const button = document.querySelectorAll(".shop__category-btn"); //  кнопка категорий
+const productList = document.querySelector(".shop__list"); //  список товаров на странице
+const basketBtn = document.querySelector(".shop__btn-card"); //  кнопка карзины
+const basketCnt = basketBtn.querySelector(".shop__cnt-card"); // цифру в иконке корзины
 
-const modalCloseBtn = document.querySelector(".modal-overlay__close-btn"); // получаем кнопку закрыть МО
+//Модальное окно
+const modal = document.querySelector(".modal-overlay"); //  модальное окно
+const cartList = document.querySelector(".modal__cart-list"); //  список
+const modalCloseBtn = document.querySelector(".modal-overlay__close-btn"); // кнопку закрыть 
 const modalItemPrice = document.querySelector(".modal__footer-price"); // прайс
-const modalForm = document.querySelector(".modal__form"); // форма в МО
+const modalForm = document.querySelector(".modal__form"); // форма
+
+const orderMassageEl = document.createElement('div'); // добавляем элемент
+orderMassageEl.classList.add('order-massage')// добавляем ему класс
+
+const orderMassageText = document.createElement('p'); // 
+orderMassageText.classList.add('order-massage__text')// добавляем ему класс
+
+const orderMassageBtn = document.createElement('button'); // 
+orderMassageBtn.classList.add('order-massage__button')// добавляем ему класс
+orderMassageBtn.textContent = 'Закрыть'
+
+orderMassageEl.append(orderMassageText, orderMassageBtn)
+
+orderMassageBtn.addEventListener('click', () => {
+	orderMassageEl.remove()
+})
+
 
 // API Block
 // const createProductCard = (product) =>  такой записью мы получаем обект данных и в нужных местах обрвщалмсь бы к его ключам вытаскивая значения
@@ -258,24 +276,46 @@ cartList.addEventListener('click', ({target}) => {
 // Запрос на отправку формы
 
 // не дает перезагружаться странице при отправке формы
-const submitOrder = ((event) => {
-	event.preventDefault() 
+const submitOrder = async (event) => {
+	event.preventDefault(); 
 
-	const storId = modalForm.shop.value // получаем число из атрибута 'name' у инпутьв с адресами
+	const storeId = modalForm.shop.value // получаем число из атрибута 'name' у инпутьв с адресами
 	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
 	// берем каждый полученный элемент, перебираем его через 'map' и возвращаем обратно только нужные нам элементы с нужными нам атребутани
 	const products = cartItems.map(({id, count}) => ({
 		id,
 		quantity: count
-	}))
+	}));
 
-	console.log('products: ', products)
+	console.log('products: ', products);
+// отправка объекта 'product' на сервер
+		try{
+			const response = await fetch(`${API_URL}/api/orders`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({storeId, products}),
+			});
+			
+			if(!response.ok){
+				throw new Error(response.statusText);
+			} 
 
-	// try{
+			//Очищаем localStorage
+			localStorage.removeItem('cartItems')
+			localStorage.removeItem('cartProductDetailes')
 
-	// } catch()
-})
+			const {orderId} = await response.json();
+			orderMassageText.textContent = `Ваш заказ оформлен. Номер ${orderId}.`
+			document.body.append(orderMassageEl) // добавляем элемент на страницу
+			modal.style.display = 'none'
+			updateBasketCount();
 
+			} catch(error){
+				console.error('Ошибка оформления заказа:');
+			}
+}
 
 modalForm.addEventListener('submit', submitOrder)
 
