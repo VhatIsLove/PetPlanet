@@ -252,3 +252,30 @@ cartList.addEventListener('click', ({target}) => {
 		updateBasketItems(prodId, -1)
 	}
 })
+
+
+
+// Запрос на отправку формы
+
+// не дает перезагружаться странице при отправке формы
+const submitOrder = ((event) => {
+	event.preventDefault() 
+
+	const storId = modalForm.shop.value // получаем число из атрибута 'name' у инпутьв с адресами
+	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+	// берем каждый полученный элемент, перебираем его через 'map' и возвращаем обратно только нужные нам элементы с нужными нам атребутани
+	const products = cartItems.map(({id, count}) => ({
+		id,
+		quantity: count
+	}))
+
+	console.log('products: ', products)
+
+	// try{
+
+	// } catch()
+})
+
+
+modalForm.addEventListener('submit', submitOrder)
+
