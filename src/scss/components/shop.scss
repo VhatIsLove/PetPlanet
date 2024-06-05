@@ -4,16 +4,29 @@
 .shop {
 	padding-top: 120px;
 	padding-bottom: 120px;
+
 	&__header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 40px;
+
+		@include mobile{
+			flex-wrap: wrap;
+			justify-content: end;
+			gap: 30px;
+		}
 	}
 
 	&__categories {
 		display: flex;
 		gap: 28px;
+		overflow-x: auto;
+
+		@include mobile{
+			flex-grow: 1;
+			gap: 16px;
+		}
 	}
 
 	&__category-item {
@@ -51,6 +64,8 @@
 		display: block;
 		width: 28px;
 		height: 28px;
+
+		
 	}
 
 	&__cnt-card {
@@ -60,6 +75,10 @@
 		font-size: 12px;
 		line-height: 1px;
 		color: $light;
+
+		@include bigscreen{
+			vertical-align: middle;
+		}
 	}
 
 	&__icon-card {
@@ -88,5 +107,6 @@
 
 	&__item {
 		display: flex;
+		justify-content: center;
 	}
 }
