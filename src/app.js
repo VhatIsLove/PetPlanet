@@ -16,7 +16,6 @@ const productList = document.querySelector(".shop__list"); //  список то
 // записыаем свойство target в переменную
 const changeCategory = async ({ target }) => {
 	const category = target.textContent;
-	console.log('changeCategory: ', target, category);
 
 	button.forEach((btn) => {
 		btn.classList.remove("shop__category-btn_active"); //изначально удаляем модифекатор активности

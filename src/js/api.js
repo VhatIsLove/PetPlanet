@@ -1,61 +1,36 @@
 export const API_URL = "https://melon-truth-protocol.glitch.me"; // адрес сервера
 
-// запрашиваем данные по API
-export const fetchProductCategory = async (category) => {
-	try {
-		const response = await fetch(
-			`${API_URL}/api/products/category/${category}`
-		);
-		
+const fetchData = async (endpoint, option = {}) => {
+	try{
+		const response = await fetch(`${API_URL}${endpoint}`, option);
+
 		if (!response.ok) {
 			throw new Error(response.status);
 		}
 
-		const products = await response.json(); // Получаем данные
+		return await response.json();
 
-		return products // вызываем функцию рендера карточек и передаем полученые данные товара
-	} catch (error) {
-		console.error(`Ошибка запроса товара: ${error}`);
+	} catch (error){
+		console.error(`Ошибка запроса: ${error}`);
 	}
-};
+}
+
+// запрашиваем данные по API
+export const fetchProductCategory = (category) => 
+	fetchData(`/api/products/category/${category}`)
+	
 
 //
-export const fetchBasketItems = async (ids) => {
-	try {
-		const response = await fetch(
-			`${API_URL}/api/products/list/${ids.join(",")}`
-		);
-
-		if (!response.ok) {
-			throw new Error(response.status);
-		}
-		return await response.json();
-	} catch (error) {
-		console.error(`Ошибка запроса товаров: ${error}`);
-		return [];
-	}
-};
+export const fetchBasketItems = async (ids) => 
+	fetchData(`/api/products/list/${ids.join(",")}`)
 
 // Запрос на отправку формы
 // не дает перезагружаться странице при отправке формы
-export const submitOrder = async (storeId, products) => {
-	
-	try{
-		const response = await fetch(`${API_URL}/api/orders`, {
-			method: 'POST',
+export const submitOrder = async (storeId, products) => 
+	fetchData(`/api/orders`, {
+		method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({storeId, products}),
-		});
-		
-		if(!response.ok){
-			throw new Error(response.status);
-		} 
-
-		return await response.json();
-		
-		} catch(error){
-			console.error('Ошибка оформления заказа:');
-		}
-}
+	})

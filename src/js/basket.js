@@ -1,3 +1,7 @@
+import { fetchBasketItems, submitOrder, } from "./api"
+import { renderBasketItem, createOrderMassage } from './dom-controller'
+
+
 const basketBtn = document.querySelector(".shop__btn-card"); //  кнопка карзины
 const basketCnt = basketBtn.querySelector(".shop__cnt-card"); // цифра в иконке корзины
 //Модальное окно
@@ -48,8 +52,12 @@ const updateBasketItems = (prodId, num) => {
 	}
 	localStorage.setItem('cartItems', JSON.stringify(cartItems))
 
+	const products = JSON.parse(
+		localStorage.getItem("cartProductDetailes") || "[]"
+	)
+
 	updateBasketCount()
-	renderBasketItem()
+	renderBasketItem(cartList, cartItems, products)
 }
 
 
@@ -86,7 +94,10 @@ basketBtn.addEventListener("click", async () => {
 
 	const products = await fetchBasketItems(ids);
 	localStorage.setItem("cartProductDetailes", JSON.stringify(products));
-	renderBasketItem();
+	renderBasketItem(cartList, cartItems, products);
+
+	const totalPrice = calcTotalPrice(cartItems, products);
+	modalItemPrice.innerHTML = `${totalPrice}&nbsp;₽`;
 });
 
 modal.addEventListener("click", ({ target }) => {

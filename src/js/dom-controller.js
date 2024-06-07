@@ -2,13 +2,14 @@ import {API_URL} from './api'
 
 // Создаем DOM элементы
 
-const createOrderMassage = (id) => {
+export const createOrderMassage = (id) => {
 	const orderMassageEl = document.createElement('div'); // добавляем элемент
 	orderMassageEl.classList.add('order-massage')// добавляем ему класс
 
 	const orderMassageText = document.createElement('p'); // 
 	orderMassageText.classList.add('order-massage__text')// добавляем ему класс
-	orderMassageText.textContent = `Ваш заказ оформлен. Номер ${orderId}.`
+	orderMassageText.textContent = `Ваш заказ оформлен. Номер ${id}.`
+	console.log(id);
 
 	const orderMassageBtn = document.createElement('button'); // 
 	orderMassageBtn.classList.add('order-massage__button')// добавляем ему класс
@@ -61,10 +62,8 @@ export const renderProducts = (products, productList) => {
 //рендер товара в модальном окне
 // сразу очищаем элементы списка для безопасности
 // получаем значение localStorage и перебираем его через forEach, на каждой итерации создаем 'li' элемент и записываем в него полученое значение при переборе
-const renderBasketItem = async () => {
+export const renderBasketItem = (cartList, cartItems, products) => {
 	cartList.textContent = "";
-	const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
-	const products = JSON.parse(localStorage.getItem("cartProductDetailes") || "[]");
 
 	products.forEach(({ id, photoUrl, name, price }) => {
 		const cartItem = cartItems.find((item) => item.id === id);
@@ -93,7 +92,4 @@ const renderBasketItem = async () => {
 		`;
 		cartList.append(listItem);
 	});
-
-	const totalPrice = calcTotalPrice(cartItems, products);
-	modalItemPrice.innerHTML = `${totalPrice}&nbsp;₽`;
 };
